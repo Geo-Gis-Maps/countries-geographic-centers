@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geographic Centers of Every Country — Exact Coordinates | Geo Centers</title>
+<meta name="description" content="Explore the exact geographic center of every country in the world. 196 countries mapped with WGS84 precision using Area-Weighted Centroid method. Available in English, Turkish, German, Spanish and Portuguese.">
+<meta name="keywords" content="geographic center of every country, country geographic center, centroid of countries, exact center of country, WGS84 coordinates, world map centers, geographic midpoint, country center coordinates, middle of country">
+<meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="author" content="Geo Centers">
+<meta property="og:title" content="Geographic Centers of Every Country — Exact WGS84 Coordinates">
+<meta property="og:description" content="196 countries. Each one mapped to its exact geographic center calculated with Area-Weighted Centroid method on WGS84 ellipsoid.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<meta property="og:site_name" content="Countries Geographic Centers">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Geographic Centers of Every Country">
+<meta name="twitter:description" content="196 countries mapped to their exact geographic center. WGS84 precision, 5 languages.">
+<link rel="canonical" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Countries Geographic Centers",
+  "alternateName": "Geo Centers",
+  "description": "Exact geographic centers of 196 countries calculated with Area-Weighted Centroid method on WGS84 ellipsoid",
+  "url": "https://geo-gis-maps.github.io/countries-geographic-centers/",
+  "inLanguage": ["en","tr","de","es","pt"],
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://geo-gis-maps.github.io/countries-geographic-centers/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🌐</div>
+      <span>Geo Centers</span>
+    </a>
+
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html" class="active" data-t="countries">Countries</a></li>
+      <li><a href="world-map.html" data-t="mapTitle">World Map</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+
+    <div class="header-controls">
+      <select id="lang-select" class="lang-select" aria-label="Language">
+        <option value="en">English</option>
+        <option value="tr">Türkçe</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+      </select>
+      <button id="theme-btn" class="theme-btn" aria-label="Toggle theme">☀️</button>
+    </div>
+
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">☰</button>
+  </div>
+</header>
+
+<!-- ══════════════════ HERO ══════════════════ -->
+<section class="hero">
+  <h1>
+    <span class="gradient-text" data-t="heroTitle">Geographic Center of Every Country</span>
+  </h1>
+  <p data-t="heroSub">Explore the exact mathematical center of 196 countries, calculated from millions of boundary coordinates.</p>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">196</div>
+      <div class="stat-label" data-t="statLabel1">Mapped</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">WGS84</div>
+      <div class="stat-label" data-t="statLabel2">Ellipsoid</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">±5m</div>
+      <div class="stat-label" data-t="statLabel3">Accuracy</div>
+    </div>
+  </div>
+
+  <div class="hero-actions">
+    <a href="world-map.html" class="btn btn-primary">
+      🗺️ <span data-t="btnExplore">Explore Map</span>
+    </a>
+    <a href="#countries" class="btn btn-outline">
+      📋 <span data-t="btnCountries">Browse All</span>
+    </a>
+  </div>
+</section>
+
+<!-- ══════════════════ MAP PREVIEW ══════════════════ -->
+<section class="map-section">
+  <h2 class="section-title">
+    <span data-t="mapTitle">World Map</span>
+    <span class="pill">LIVE</span>
+  </h2>
+  <div class="map-container">
+    <div id="world-map"></div>
+  </div>
+</section>
+
+<!-- ══════════════════ SEARCH ══════════════════ -->
+<div class="search-wrap" id="countries">
+  <div class="search-box">
+    <input type="text" id="search-input" data-tp="searchPlaceholder" placeholder="Search any country…" autocomplete="off">
+    <button id="search-btn" aria-label="Search">🔍</button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- ══════════════════ TOOLBAR ══════════════════ -->
+<div class="toolbar">
+  <div class="results-count" id="results-count"></div>
+  <div class="sort-wrap">
+    <span>Sort:</span>
+    <select id="sort-select">
+      <option value="az" data-t="sortAZ">A → Z</option>
+      <option value="za" data-t="sortZA">Z → A</option>
+    </select>
+  </div>
+</div>
+
+<!-- ══════════════════ COUNTRY GRID ══════════════════ -->
+<section class="countries-section">
+  <div class="country-grid" id="country-grid">
+    <!-- filled by app.js -->
+  </div>
+</section>
+
+<!-- ══════════════════ FOOTER ══════════════════ -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="logo" style="margin-bottom:12px">
+          <div class="logo-icon">🌐</div>
+          <span>Geo Centers</span>
+        </a>
+        <p class="footer-desc">
+          Exact geographic centers of every sovereign country, calculated with area-weighted centroid method on the WGS84 ellipsoid.
+        </p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Pages</h4>
+        <ul>
+          <li><a href="index.html" data-t="countries">Countries</a></li>
+          <li><a href="world-map.html" data-t="mapTitle">World Map</a></li>
+          <li><a href="methodology.html">Methodology</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-links">
+        <h4>Languages</h4>
+        <ul>
+          <li><a href="#" onclick="document.getElementById('lang-select').value='en';document.getElementById('lang-select').dispatchEvent(new Event('change'));return false">English</a></li>
+          <li><a href="#" onclick="document.getElementById('lang-select').value='tr';document.getElementById('lang-select').dispatchEvent(new Event('change'));return false">Türkçe</a></li>
+          <li><a href="#" onclick="document.getElementById('lang-select').value='de';document.getElementById('lang-select').dispatchEvent(new Event('change'));return false">Deutsch</a></li>
+          <li><a href="#" onclick="document.getElementById('lang-select').value='es';document.getElementById('lang-select').dispatchEvent(new Event('change'));return false">Español</a></li>
+          <li><a href="#" onclick="document.getElementById('lang-select').value='pt';document.getElementById('lang-select').dispatchEvent(new Event('change'));return false">Português</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2025 Countries Geographic Centers</span>
+      <div class="footer-credit">
+        <span data-t="creditText">Data sourced from</span>
+        <a href="https://middleofcountries.github.io" target="_blank" rel="noopener">
+          middleofcountries.github.io
+        </a>
+        🔗
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/app.js"></script>
+</body>
+</html>

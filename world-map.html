@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>World Map — Geographic Centers of Every Country | Geo Centers</title>
+<meta name="description" content="Interactive world map showing the exact geographic center of all 196 countries. Hover to see coordinates and location, click to explore each country's center page.">
+<meta name="robots" content="index, follow">
+<meta property="og:title" content="World Map — Geographic Centers of Every Country">
+<meta property="og:description" content="196 countries on one interactive map. Hover for coordinates, click to explore.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://geo-gis-maps.github.io/countries-geographic-centers/world-map.html">
+<link rel="canonical" href="https://geo-gis-maps.github.io/countries-geographic-centers/world-map.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+body { overflow: hidden; }
+
+/* ── LAYOUT ── */
+.map-page {
+  position: fixed;
+  top: var(--header-h);
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+}
+
+/* ── MAP ── */
+#main-map { flex: 1; position: relative; overflow: hidden; }
+#leaflet-map { width: 100%; height: 100%; }
+
+/* dark tile invert */
+.dark-tiles .leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.88) contrast(0.9);
+}
+
+/* ── CUSTOM TOOLTIP ── */
+.cgc-tooltip {
+  background: rgba(10,14,26,0.95);
+  border: 1px solid #00c6ff;
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 200px;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+[data-theme="light"] .cgc-tooltip {
+  background: rgba(255,255,255,0.97);
+  border-color: #0072ff;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.tt-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+[data-theme="light"] .tt-name { color: #1a2235; }
+.tt-flag {
+  width: 26px; height: 17px;
+  object-fit: cover;
+  border-radius: 2px;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+}
+.tt-coords {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  color: #00c6ff;
+  margin-bottom: 2px;
+}
+[data-theme="light"] .tt-coords { color: #0072ff; }
+.tt-place {
+  font-size: 0.72rem;
+  color: #7a8ba8;
+  margin-top: 2px;
+}
+.tt-hint {
+  font-size: 0.65rem;
+  color: #3a4b60;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 6px;
+}
+[data-theme="light"] .tt-hint { color: #aaa; border-top-color: #ddd; }
+
+/* ── SIDE PANEL ── */
+#side-panel {
+  width: 300px;
+  min-width: 300px;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: width 0.25s, min-width 0.25s;
+  flex-shrink: 0;
+}
+#side-panel.collapsed { width: 0; min-width: 0; border: none; }
+
+/* panel toggle */
+#panel-toggle {
+  position: absolute;
+  right: 300px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 900;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-right: none;
+  color: var(--muted);
+  width: 18px;
+  height: 56px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px 0 0 6px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  transition: right 0.25s;
+}
+#panel-toggle:hover { background: var(--bg3); }
+#side-panel.collapsed ~ #panel-toggle { right: 0; border-radius: 0 6px 6px 0; border: 1px solid var(--border); border-left: none; }
+
+/* panel parts */
+.panel-search-wrap {
+  padding: 12px 12px 10px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  position: relative;
+}
+.panel-search-wrap .search-box { border-radius: 8px; }
+#panel-results {
+  position: absolute;
+  left: 12px; right: 12px;
+  top: 58px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+#panel-results.open { display: block; }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 14px 12px; }
+
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%; gap: 10px;
+  color: var(--muted); text-align: center;
+  padding: 20px;
+}
+.empty-state .e-icon { font-size: 2.4rem; opacity: 0.35; }
+.empty-state p { font-size: 0.8rem; line-height: 1.6; }
+
+/* info card */
+.ic { display: none; }
+.ic.show { display: block; }
+
+.ic-flag {
+  width: 100%; height: 110px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+  display: block;
+  background: var(--bg3);
+}
+.ic-name {
+  font-size: 1.25rem; font-weight: 800;
+  line-height: 1.2; margin-bottom: 4px;
+}
+.ic-badge {
+  display: inline-block;
+  font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.6px;
+  background: rgba(0,198,255,0.1);
+  color: #00c6ff;
+  border: 1px solid rgba(0,198,255,0.4);
+  padding: 2px 8px; border-radius: 100px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+.ic-row {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+}
+.ic-row-label {
+  font-size: 0.65rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--muted); margin-bottom: 3px;
+}
+.ic-row-value {
+  font-size: 0.85rem; font-weight: 600;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  word-break: break-all;
+}
+.ic-row-value.plain { font-family: var(--font); font-size: 0.82rem; }
+
+/* action buttons */
+.ic-actions {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-top: 10px;
+}
+.ic-btn {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 10px 14px;
+  border-radius: 8px; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; border: none; text-decoration: none;
+  transition: opacity 0.18s, background 0.18s;
+}
+.ic-btn:hover { opacity: 0.85; text-decoration: none; }
+.ic-btn-primary {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  color: #fff;
+}
+.ic-btn-row {
+  display: flex; gap: 8px;
+}
+.ic-btn-sm {
+  flex: 1; padding: 8px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.78rem; font-weight: 600;
+  border-radius: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  gap: 6px; transition: background 0.18s;
+}
+.ic-btn-sm:hover { background: var(--border); }
+.ic-btn-sm.copied { color: #00c6ff; border-color: #00c6ff; }
+
+/* ── PILL ── */
+.map-pill {
+  position: absolute; bottom: 18px; left: 50%;
+  transform: translateX(-50%);
+  z-index: 800;
+  background: rgba(0,0,0,0.6);
+  color: #fff; padding: 5px 16px;
+  border-radius: 100px; font-size: 0.74rem;
+  pointer-events: none; white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ── LOADING BAR ── */
+#load-bar {
+  position: absolute; top: 0; left: 0;
+  height: 3px; background: linear-gradient(90deg,#00c6ff,#0072ff);
+  z-index: 999; transition: width 0.3s;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  #side-panel { display: none; }
+  #panel-toggle { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon">🌐</div><span>Geo Centers</span>
+    </a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Countries</a></li>
+      <li><a href="world-map.html" class="active">World Map</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="header-controls">
+      <select id="lang-sel" class="lang-select">
+        <option value="en">English</option>
+        <option value="tr">Türkçe</option>
+        <option value="de">Deutsch</option>
+        <option value="es">Español</option>
+        <option value="pt">Português</option>
+      </select>
+      <button id="theme-btn" class="theme-btn">☀️</button>
+    </div>
+    <button class="nav-toggle" id="nav-toggle">☰</button>
+  </div>
+</header>
+
+<!-- MAP PAGE -->
+<div class="map-page">
+
+  <!-- Map -->
+  <div id="main-map">
+    <div id="load-bar" style="width:0%"></div>
+    <div id="leaflet-map"></div>
+    <div class="map-pill" id="map-pill">Hover a country • Click to open its page</div>
+  </div>
+
+  <!-- Side panel -->
+  <div id="side-panel">
+    <div class="panel-search-wrap">
+      <div class="search-box">
+        <input type="text" id="p-search" placeholder="Search country…" autocomplete="off">
+        <button id="p-search-btn">🔍</button>
+      </div>
+      <div id="panel-results"></div>
+    </div>
+
+    <div class="panel-body" id="panel-body">
+      <div class="empty-state" id="empty-state">
+        <div class="e-icon">🗺️</div>
+        <p id="hover-hint">Hover over any country on the map to see its geographic center details.</p>
+      </div>
+
+      <!-- Info card -->
+      <div class="ic" id="info-card">
+        <img class="ic-flag" id="ic-flag" src="" alt="">
+        <div class="ic-name" id="ic-name"></div>
+        <div class="ic-badge" id="ic-badge">Geographic Center</div>
+
+        <div class="ic-row">
+          <div class="ic-row-label" id="lbl-coords">Coordinates</div>
+          <div class="ic-row-value" id="ic-coords"></div>
+        </div>
+        <div class="ic-row">
+          <div class="ic-row-label" id="lbl-lat">Latitude</div>
+          <div class="ic-row-value" id="ic-lat"></div>
+        </div>
+        <div class="ic-row">
+          <div class="ic-row-label" id="lbl-lon">Longitude</div>
+          <div class="ic-row-value" id="ic-lon"></div>
+        </div>
+        <div class="ic-row" id="ic-row-place">
+          <div class="ic-row-label" id="lbl-place">Location</div>
+          <div class="ic-row-value plain" id="ic-place"></div>
+        </div>
+
+        <div class="ic-actions">
+          <a class="ic-btn ic-btn-primary" id="ic-open" href="#">
+            <span>🌍</span><span id="lbl-open">Open Country Page</span>
+          </a>
+          <div class="ic-btn-row">
+            <button class="ic-btn-sm" id="btn-copy-coords" title="Copy coordinates">
+              📋 <span id="lbl-copy">Copy</span>
+            </button>
+            <button class="ic-btn-sm" id="btn-share" title="Share link">
+              🔗 <span id="lbl-share">Share</span>
+            </button>
+            <button class="ic-btn-sm" id="btn-gmaps" title="Open in Google Maps">
+              🗺 Maps
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button id="panel-toggle" title="Toggle panel">▶</button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+const ISO = {"Afghanistan":"af","Albania":"al","Algeria":"dz","Andorra":"ad","Angola":"ao","Antigua and Barbuda":"ag","Argentina":"ar","Armenia":"am","Australia":"au","Austria":"at","Azerbaijan":"az","Bahamas":"bs","Bahrain":"bh","Bangladesh":"bd","Barbados":"bb","Belarus":"by","Belgium":"be","Belize":"bz","Benin":"bj","Bhutan":"bt","Bolivia":"bo","Bosnia and Herzegovina":"ba","Botswana":"bw","Brazil":"br","Brunei":"bn","Bulgaria":"bg","Burkina Faso":"bf","Burundi":"bi","Cabo Verde":"cv","Cambodia":"kh","Cameroon":"cm","Canada":"ca","Central African Republic":"cf","Chad":"td","Chile":"cl","China":"cn","Colombia":"co","Comoros":"km","Congo (Congo-Brazzaville)":"cg","Costa Rica":"cr","Croatia":"hr","Cuba":"cu","Cyprus":"cy","Czechia":"cz","Democratic Republic of the Congo":"cd","Denmark":"dk","Djibouti":"dj","Dominica":"dm","Dominican Republic":"do","Ecuador":"ec","Egypt":"eg","El Salvador":"sv","Equatorial Guinea":"gq","Eritrea":"er","Estonia":"ee","Eswatini":"sz","Ethiopia":"et","Fiji":"fj","Finland":"fi","France":"fr","Gabon":"ga","Gambia":"gm","Georgia":"ge","Germany":"de","Ghana":"gh","Greece":"gr","Greenland":"gl","Grenada":"gd","Guatemala":"gt","Guinea":"gn","Guinea-Bissau":"gw","Guyana":"gy","Haiti":"ht","Honduras":"hn","Hungary":"hu","Iceland":"is","India":"in","Indonesia":"id","Iran":"ir","Iraq":"iq","Ireland":"ie","Israel":"il","Italy":"it","Jamaica":"jm","Japan":"jp","Jordan":"jo","Kazakhstan":"kz","Kenya":"ke","Kiribati":"ki","Kuwait":"kw","Kyrgyzstan":"kg","Laos":"la","Latvia":"lv","Lebanon":"lb","Lesotho":"ls","Liberia":"lr","Libya":"ly","Liechtenstein":"li","Lithuania":"lt","Luxembourg":"lu","Madagascar":"mg","Malawi":"mw","Malaysia":"my","Maldives":"mv","Mali":"ml","Malta":"mt","Marshall Islands":"mh","Mauritania":"mr","Mauritius":"mu","Mexico":"mx","Micronesia":"fm","Moldova":"md","Monaco":"mc","Mongolia":"mn","Montenegro":"me","Morocco":"ma","Mozambique":"mz","Myanmar":"mm","Namibia":"na","Nauru":"nr","Nepal":"np","Netherlands":"nl","New Zealand":"nz","Nicaragua":"ni","Niger":"ne","Nigeria":"ng","North Korea":"kp","North Macedonia":"mk","Norway":"no","Oman":"om","Pakistan":"pk","Palau":"pw","Panama":"pa","Papua New Guinea":"pg","Paraguay":"py","Peru":"pe","Philippines":"ph","Poland":"pl","Portugal":"pt","Qatar":"qa","Romania":"ro","Russia":"ru","Rwanda":"rw","Saint Kitts and Nevis":"kn","Saint Lucia":"lc","Saint Vincent and the Grenadines":"vc","Samoa":"ws","San Marino":"sm","Sao Tome and Principe":"st","Saudi Arabia":"sa","Senegal":"sn","Serbia":"rs","Seychelles":"sc","Sierra Leone":"sl","Singapore":"sg","Slovakia":"sk","Slovenia":"si","Solomon Islands":"sb","Somalia":"so","South Africa":"za","South Korea":"kr","South Sudan":"ss","Spain":"es","Sri Lanka":"lk","Sudan":"sd","Suriname":"sr","Sweden":"se","Switzerland":"ch","Syria":"sy","Taiwan":"tw","Tajikistan":"tj","Tanzania":"tz","Thailand":"th","Timor-Leste":"tl","Togo":"tg","Tonga":"to","Trinidad and Tobago":"tt","Tunisia":"tn","Türkiye":"tr","Turkmenistan":"tm","Tuvalu":"tv","Uganda":"ug","Ukraine":"ua","United Arab Emirates":"ae","United Kingdom":"gb","United States":"us","Uruguay":"uy","Uzbekistan":"uz","Vanuatu":"vu","Vatican City":"va","Venezuela":"ve","Vietnam":"vn","Yemen":"ye","Zambia":"zm","Zimbabwe":"zw"};
+
+const PLACES = {"Afghanistan":"Ghor Province","Albania":"near Elbasan","Algeria":"Central Algeria","Andorra":"Central Andorra","Angola":"Central Angola","Antigua and Barbuda":"Antigua Island","Argentina":"La Pampa Province","Armenia":"Kotayk Province","Australia":"Northern Territory","Austria":"Salzburg Region","Azerbaijan":"Yevlakh District","Bahamas":"Andros Island","Bahrain":"Central Bahrain","Bangladesh":"Dhaka Division","Barbados":"Central Barbados","Belarus":"Minsk Region","Belgium":"Namur Province","Belize":"Belize District","Benin":"Collines Department","Bhutan":"Trongsa District","Bolivia":"Cochabamba Dept.","Bosnia and Herzegovina":"Central Bosnia","Botswana":"Ghanzi District","Brazil":"Goiás State","Brunei":"Tutong District","Bulgaria":"Plovdiv Region","Burkina Faso":"Centre-Nord Region","Burundi":"Central Burundi","Cabo Verde":"Santiago Island","Cambodia":"Kampong Thom","Cameroon":"Adamawa Region","Canada":"Northwest Territories","Central African Republic":"Nana-Mambéré","Chad":"Guéra Region","Chile":"Maule Region","China":"Gansu Province","Colombia":"Vichada Dept.","Comoros":"Grande Comore","Congo (Congo-Brazzaville)":"Plateaux Dept.","Costa Rica":"Alajuela Province","Croatia":"Central Croatia","Cuba":"Sancti Spíritus","Cyprus":"Nicosia District","Czechia":"Vysočina Region","Democratic Republic of the Congo":"Kasai Region","Denmark":"Jutland Peninsula","Djibouti":"Central Djibouti","Dominica":"Central Dominica","Dominican Republic":"La Vega Province","Ecuador":"Cotopaxi Province","Egypt":"New Valley Governorate","El Salvador":"Cabañas Dept.","Equatorial Guinea":"Centro Sur Province","Eritrea":"Anseba Region","Estonia":"Järva County","Eswatini":"Manzini Region","Ethiopia":"Oromia Region","Fiji":"Viti Levu Island","Finland":"Central Finland","France":"Allier Department","Gabon":"Ogooué-Ivindo","Gambia":"Central River Div.","Georgia":"Shida Kartli","Germany":"Thuringia","Ghana":"Brong-Ahafo Region","Greece":"Central Greece","Greenland":"Central Greenland","Grenada":"Saint George Parish","Guatemala":"El Quiché Dept.","Guinea":"Faranah Prefecture","Guinea-Bissau":"Oio Region","Guyana":"Potaro-Siparuni","Haiti":"Artibonite Dept.","Honduras":"Comayagua Dept.","Hungary":"Jász-Nagykun-Szolnok","Iceland":"Southern Highlands","India":"Madhya Pradesh","Indonesia":"Central Kalimantan","Iran":"Isfahan Province","Iraq":"Saladin Governorate","Ireland":"County Tipperary","Israel":"Central District","Italy":"Umbria Region","Jamaica":"Manchester Parish","Japan":"Gifu Prefecture","Jordan":"Zarqa Governorate","Kazakhstan":"Karaganda Region","Kenya":"Laikipia County","Kiribati":"Gilbert Islands","Kuwait":"Al Jahra Governorate","Kyrgyzstan":"Naryn Region","Laos":"Khammouane Province","Latvia":"Vidzeme","Lebanon":"Beirut Governorate","Lesotho":"Thaba-Tseka District","Liberia":"Bong County","Libya":"Al-Jufra District","Liechtenstein":"Central Liechtenstein","Lithuania":"Kaunas County","Luxembourg":"Diekirch Canton","Madagascar":"Central Madagascar","Malawi":"Lilongwe District","Malaysia":"Pahang State","Maldives":"Central Maldives","Mali":"Mopti Region","Malta":"Central Malta","Marshall Islands":"Ratak Chain","Mauritania":"Tagant Region","Mauritius":"Plaines Wilhems","Mexico":"Querétaro State","Micronesia":"Pohnpei State","Moldova":"Orhei District","Monaco":"Central Monaco","Mongolia":"Övörkhangai Province","Montenegro":"Central Montenegro","Morocco":"Middle Atlas","Mozambique":"Sofala Province","Myanmar":"Mandalay Region","Namibia":"Hardap Region","Nauru":"Central Nauru","Nepal":"Bagmati Province","Netherlands":"Gelderland Province","New Zealand":"Manawatu-Wanganui","Nicaragua":"Boaco Department","Niger":"Maradi Region","Nigeria":"Nasarawa State","North Korea":"Pyongyang Province","North Macedonia":"Veles Municipality","Norway":"Innlandet County","Oman":"Ad Dakhiliyah","Pakistan":"Punjab Province","Palau":"Ngatpang State","Panama":"Veraguas Province","Papua New Guinea":"Southern Highlands","Paraguay":"Paraguarí Dept.","Peru":"Ucayali Region","Philippines":"Nueva Ecija Province","Poland":"Łódź Voivodeship","Portugal":"Coimbra District","Qatar":"Al Rayyan","Romania":"Alba County","Russia":"Krasnoyarsk Krai","Rwanda":"Southern Province","Saint Kitts and Nevis":"Saint Kitts Island","Saint Lucia":"Central Saint Lucia","Saint Vincent and the Grenadines":"Saint Vincent Island","Samoa":"Upolu Island","San Marino":"Central San Marino","Sao Tome and Principe":"São Tomé Island","Saudi Arabia":"Riyadh Province","Senegal":"Fatick Region","Serbia":"Šumadija District","Seychelles":"Mahé Island","Sierra Leone":"Tonkolili District","Singapore":"Central Singapore","Slovakia":"Banská Bystrica","Slovenia":"Inner Carniola","Solomon Islands":"Guadalcanal Province","Somalia":"Hiiraan Region","South Africa":"Free State Province","South Korea":"Chungcheongbuk-do","South Sudan":"Lakes State","Spain":"Cuenca Province","Sri Lanka":"North Central Province","Sudan":"North Kordofan","Suriname":"Sipaliwini District","Sweden":"Örebro County","Switzerland":"Bern Canton","Syria":"Hama Governorate","Taiwan":"Nantou County","Tajikistan":"RRS Region","Tanzania":"Dodoma Region","Thailand":"Nakhon Ratchasima","Timor-Leste":"Aileu Municipality","Togo":"Centrale Region","Tonga":"Tongatapu Island","Trinidad and Tobago":"Central Trinidad","Tunisia":"Kasserine Governorate","Türkiye":"Yozgat, Çandır (Eşrefpaşa), 1343m","Turkmenistan":"Ahal Province","Tuvalu":"Funafuti Atoll","Uganda":"Kyoga Lake Basin","Ukraine":"Poltava Oblast","United Arab Emirates":"Abu Dhabi Emirate","United Kingdom":"Warwickshire, England","United States":"Lebanon, Kansas","Uruguay":"Flores Department","Uzbekistan":"Jizzakh Region","Vanuatu":"Malampa Province","Vatican City":"Vatican City","Venezuela":"Guárico State","Vietnam":"Kon Tum Province","Yemen":"Marib Governorate","Zambia":"Central Province","Zimbabwe":"Midlands Province"};
+
+const LANG = {
+  en:{searchPh:"Search country…",hoverHint:"Hover any country to see its geographic center.",openBtn:"Open Country Page",copyBtn:"Copy",shareBtn:"Share",coordsLbl:"Coordinates",latLbl:"Latitude",lonLbl:"Longitude",placeLbl:"Location",badge:"Geographic Center",pill:"Hover a country • Click to open its page",copied:"Copied!",shareDone:"Link copied!"},
+  tr:{searchPh:"Ülke ara…",hoverHint:"Coğrafi merkezi görmek için haritada bir ülkenin üzerine gelin.",openBtn:"Ülke Sayfasını Aç",copyBtn:"Kopyala",shareBtn:"Paylaş",coordsLbl:"Koordinatlar",latLbl:"Enlem",lonLbl:"Boylam",placeLbl:"Konum",badge:"Coğrafi Merkez",pill:"Üzerine gel • Tıklayarak aç",copied:"Kopyalandı!",shareDone:"Bağlantı kopyalandı!"},
+  de:{searchPh:"Land suchen…",hoverHint:"Fahren Sie über ein Land für Details.",openBtn:"Länderseite öffnen",copyBtn:"Kopieren",shareBtn:"Teilen",coordsLbl:"Koordinaten",latLbl:"Breitengrad",lonLbl:"Längengrad",placeLbl:"Standort",badge:"Geografischer Mittelpunkt",pill:"Hover → Details • Klick → Öffnen",copied:"Kopiert!",shareDone:"Link kopiert!"},
+  es:{searchPh:"Buscar país…",hoverHint:"Pasa el cursor sobre un país para ver detalles.",openBtn:"Abrir página del país",copyBtn:"Copiar",shareBtn:"Compartir",coordsLbl:"Coordenadas",latLbl:"Latitud",lonLbl:"Longitud",placeLbl:"Ubicación",badge:"Centro Geográfico",pill:"Hover → detalles • Clic → abrir",copied:"¡Copiado!",shareDone:"¡Enlace copiado!"},
+  pt:{searchPh:"Buscar país…",hoverHint:"Passe o cursor sobre um país para ver detalhes.",openBtn:"Abrir página do país",copyBtn:"Copiar",shareBtn:"Partilhar",coordsLbl:"Coordenadas",latLbl:"Latitude",lonLbl:"Longitude",placeLbl:"Localização",badge:"Centro Geográfico",pill:"Hover → detalhes • Clique → abrir",copied:"Copiado!",shareDone:"Link copiado!"}
+};
+
+/* ═══════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function slug(n){return n.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^0-9a-zA-Z\s\-]/g,'').trim().toLowerCase().replace(/\s+/g,'-');}
+function fmtCoord(lat,lon){
+  const la=lat>=0?lat.toFixed(6)+'°N':Math.abs(lat).toFixed(6)+'°S';
+  const lo=lon>=0?lon.toFixed(6)+'°E':Math.abs(lon).toFixed(6)+'°W';
+  return la+', '+lo;
+}
+function fmtLat(lat){return lat>=0?lat.toFixed(6)+'° N':Math.abs(lat).toFixed(6)+'° S';}
+function fmtLon(lon){return lon>=0?lon.toFixed(6)+'° E':Math.abs(lon).toFixed(6)+'° W';}
+
+let lang = localStorage.getItem('cgc_lang')||'en';
+let currentCountry = null;
+
+/* ═══════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════ */
+(function(){
+  const t=localStorage.getItem('cgc_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('theme-btn').textContent=t==='dark'?'☀️':'🌙';
+})();
+document.getElementById('theme-btn').addEventListener('click',function(){
+  const c=document.documentElement.getAttribute('data-theme');
+  const n=c==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  localStorage.setItem('cgc_theme',n);
+  this.textContent=n==='dark'?'☀️':'🌙';
+  document.getElementById('leaflet-map').classList.toggle('dark-tiles', n==='dark');
+});
+
+/* ═══════════════════════════════════════════
+   LANG
+═══════════════════════════════════════════ */
+function applyLang(l){
+  lang=l; localStorage.setItem('cgc_lang',l);
+  document.documentElement.lang=l;
+  const t=LANG[l]||LANG.en;
+  document.getElementById('p-search').placeholder=t.searchPh;
+  document.getElementById('hover-hint').textContent=t.hoverHint;
+  document.getElementById('ic-badge').textContent=t.badge;
+  document.getElementById('lbl-coords').textContent=t.coordsLbl;
+  document.getElementById('lbl-lat').textContent=t.latLbl;
+  document.getElementById('lbl-lon').textContent=t.lonLbl;
+  document.getElementById('lbl-place').textContent=t.placeLbl;
+  document.getElementById('lbl-open').textContent=t.openBtn;
+  document.getElementById('lbl-copy').textContent=t.copyBtn;
+  document.getElementById('lbl-share').textContent=t.shareBtn;
+  document.getElementById('map-pill').textContent=t.pill;
+  document.getElementById('lang-sel').value=l;
+}
+document.getElementById('lang-sel').addEventListener('change',function(){applyLang(this.value);});
+
+/* ═══════════════════════════════════════════
+   NAV
+═══════════════════════════════════════════ */
+document.getElementById('nav-toggle').addEventListener('click',function(){
+  document.getElementById('nav-links').classList.toggle('open');
+});
+
+/* ═══════════════════════════════════════════
+   PANEL TOGGLE
+═══════════════════════════════════════════ */
+const panel=document.getElementById('side-panel');
+const ptBtn=document.getElementById('panel-toggle');
+ptBtn.addEventListener('click',function(){
+  panel.classList.toggle('collapsed');
+  const c=panel.classList.contains('collapsed');
+  ptBtn.textContent=c?'◀':'▶';
+  ptBtn.style.right=c?'0':'300px';
+});
+
+/* ═══════════════════════════════════════════
+   SHOW INFO
+═══════════════════════════════════════════ */
+function showInfo(name, lat, lon){
+  currentCountry={name,lat,lon};
+  const iso=ISO[name]||'';
+  const s=slug(name);
+  const place=PLACES[name]||'';
+  const href='countries/right-in-the-middle-of-'+s+'.html';
+  const t=LANG[lang]||LANG.en;
+
+  document.getElementById('empty-state').style.display='none';
+  const card=document.getElementById('info-card');
+  card.classList.add('show');
+
+  const flagEl=document.getElementById('ic-flag');
+  if(iso){flagEl.src='assets/flags/'+iso+'.svg';flagEl.style.display='block';}
+  else{flagEl.style.display='none';}
+
+  document.getElementById('ic-name').textContent=name;
+  document.getElementById('ic-coords').textContent=fmtCoord(lat,lon);
+  document.getElementById('ic-lat').textContent=fmtLat(lat);
+  document.getElementById('ic-lon').textContent=fmtLon(lon);
+
+  const rp=document.getElementById('ic-row-place');
+  if(place){document.getElementById('ic-place').textContent=place;rp.style.display='';}
+  else{rp.style.display='none';}
+
+  document.getElementById('ic-open').href=href;
+
+  /* copy button */
+  document.getElementById('btn-copy-coords').onclick=function(){
+    const txt=fmtCoord(lat,lon)+' — '+name;
+    navigator.clipboard.writeText(txt).then(()=>{
+      this.classList.add('copied');
+      const lbl=this.querySelector('span:last-child');
+      const orig=lbl.textContent;
+      lbl.textContent=(LANG[lang]||LANG.en).copied;
+      setTimeout(()=>{lbl.textContent=orig;this.classList.remove('copied');},2000);
+    });
+  };
+
+  /* share button */
+  document.getElementById('btn-share').onclick=function(){
+    const url=window.location.origin+window.location.pathname.replace('world-map.html','')+'countries/right-in-the-middle-of-'+s+'.html';
+    if(navigator.share){
+      navigator.share({title:'Geographic Center of '+name,text:fmtCoord(lat,lon),url:url});
+    } else {
+      navigator.clipboard.writeText(url).then(()=>{
+        const lbl=this.querySelector('span:last-child');
+        const orig=lbl.textContent;
+        lbl.textContent=(LANG[lang]||LANG.en).shareDone;
+        setTimeout(()=>{lbl.textContent=orig;},2500);
+      });
+    }
+  };
+
+  /* google maps */
+  document.getElementById('btn-gmaps').onclick=function(){
+    window.open('https://www.google.com/maps?q='+lat+','+lon,'_blank');
+  };
+}
+
+/* ═══════════════════════════════════════════
+   TOOLTIP HTML
+═══════════════════════════════════════════ */
+function buildTooltip(name, lat, lon){
+  const iso=ISO[name]||'';
+  const place=PLACES[name]||'';
+  const flagHtml=iso?`<img class="tt-flag" src="assets/flags/${iso}.svg" alt="" onerror="this.style.display='none'">`:'';
+  const t=LANG[lang]||LANG.en;
+  return `<div class="cgc-tooltip">
+    <div class="tt-name">${flagHtml}${name}</div>
+    <div class="tt-coords">${fmtCoord(lat,lon)}</div>
+    ${place?`<div class="tt-place">📍 ${place}</div>`:''}
+    <div class="tt-hint">🖱 Click to open page</div>
+  </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════ */
+function initSearch(inpId, resId, data, onSelect){
+  const inp=document.getElementById(inpId);
+  const res=document.getElementById(resId);
+  if(!inp||!res)return;
+  inp.addEventListener('input',function(){
+    const q=this.value.toLowerCase().trim();
+    res.innerHTML=''; res.classList.remove('open');
+    if(!q)return;
+    const hits=data.filter(c=>c.name.toLowerCase().includes(q)).slice(0,8);
+    if(!hits.length)return;
+    hits.forEach(function(c){
+      const iso=ISO[c.name]||'';
+      const d=document.createElement('div');
+      d.className='sr-item';
+      d.innerHTML=(iso?`<img src="assets/flags/${iso}.svg" alt="" onerror="this.style.display='none'">`:'')
+        +`<span>${c.name}</span><span class="sr-coords">${c.lat.toFixed(2)}°, ${c.lon.toFixed(2)}°</span>`;
+      d.addEventListener('click',function(){
+        inp.value=c.name; res.classList.remove('open');
+        onSelect(c);
+      });
+      res.appendChild(d);
+    });
+    res.classList.add('open');
+  });
+  document.addEventListener('click',function(e){
+    if(!e.target.closest('#'+resId)&&!e.target.closest('#'+inpId))res.classList.remove('open');
+  });
+}
+
+/* ═══════════════════════════════════════════
+   MAIN
+═══════════════════════════════════════════ */
+let lmap=null;
+
+fetch('assets/js/countries_coordinates.json')
+  .then(r=>r.json())
+  .then(function(data){
+    applyLang(lang);
+    initMap(data);
+    const onSelect=function(c){
+      if(lmap)lmap.setView([c.lat,c.lon],5,{animate:true});
+      showInfo(c.name,c.lat,c.lon);
+    };
+    initSearch('p-search','panel-results',data,onSelect);
+  });
+
+function initMap(data){
+  lmap=L.map('leaflet-map',{
+    center:[20,10],zoom:2,minZoom:2,maxZoom:12,
+    zoomControl:true,worldCopyJump:false
+  });
+
+  const mapEl=document.getElementById('leaflet-map');
+
+  /* Tiles */
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains:'abc',maxZoom:19
+  }).addTo(lmap);
+
+  if((localStorage.getItem('cgc_theme')||'dark')==='dark'){
+    mapEl.classList.add('dark-tiles');
+  }
+
+  /* ── Load GeoJSON layers ── */
+  const loadBar=document.getElementById('load-bar');
+  let loaded=0;
+  const total=data.length;
+
+  /* GeoJSON styles */
+  const styleNormal={fillColor:'#1a6fa8',fillOpacity:0.4,color:'#00c6ff',weight:1,opacity:0.65};
+  const styleHover ={fillColor:'#00c6ff',fillOpacity:0.65,color:'#ffffff',weight:2,opacity:1};
+  const styleClick ={fillColor:'#ff9500',fillOpacity:0.65,color:'#ffffff',weight:2.5,opacity:1};
+
+  let activeGeoLayer=null;
+  const geoLayers={};
+
+  data.forEach(function(c){
+    const s=slug(c.name);
+    fetch('assets/geodata/'+s+'.geojson')
+      .then(function(r){loaded++;loadBar.style.width=Math.round(loaded/total*100)+'%';return r.ok?r.json():null;})
+      .then(function(gj){
+        if(!gj)return;
+        const layer=L.geoJSON(gj,{
+          style:function(){return Object.assign({},styleNormal);},
+        }).addTo(lmap);
+
+        /* tooltip on the layer */
+        layer.bindTooltip(function(){return buildTooltip(c.name,c.lat,c.lon);},{
+          sticky:true, opacity:1, className:'cgc-tooltip-wrap'
+        });
+
+        layer.on('mouseover',function(){
+          if(activeGeoLayer!==layer) layer.setStyle(styleHover);
+        });
+        layer.on('mouseout',function(){
+          if(activeGeoLayer!==layer) layer.setStyle(styleNormal);
+        });
+        layer.on('click',function(){
+          if(activeGeoLayer&&activeGeoLayer!==layer) activeGeoLayer.setStyle(styleNormal);
+          layer.setStyle(styleClick);
+          activeGeoLayer=layer;
+          showInfo(c.name,c.lat,c.lon);
+          /* navigate after short delay so user sees the highlight */
+          setTimeout(function(){
+            window.location.href='countries/right-in-the-middle-of-'+s+'.html';
+          },350);
+        });
+
+        geoLayers[s]=layer;
+        if(loaded===total){setTimeout(()=>{loadBar.style.width='0%';loadBar.style.transition='none';},600);}
+      })
+      .catch(function(){loaded++;loadBar.style.width=Math.round(loaded/total*100)+'%';});
+  });
+
+  /* ── Center dots ── */
+  const dotIcon=L.divIcon({
+    className:'',
+    html:'<div style="width:7px;height:7px;border-radius:50%;background:#ff9500;border:1.5px solid rgba(255,255,255,0.9);box-shadow:0 1px 4px rgba(0,0,0,0.6);pointer-events:none;"></div>',
+    iconSize:[7,7],iconAnchor:[3,3]
+  });
+  data.forEach(function(c){
+    L.marker([c.lat,c.lon],{icon:dotIcon,interactive:false,zIndexOffset:1000}).addTo(lmap);
+  });
+}
+</script>
+</body>
+</html>

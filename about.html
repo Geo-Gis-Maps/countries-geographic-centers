@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Countries Geographic Centers Project | Geo Centers</title>
+<meta name="description" content="About the Countries Geographic Centers project. 196 countries, WGS84 precision, 5 languages. Fast, open, accurate geographic center data for every sovereign country.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://geo-gis-maps.github.io/countries-geographic-centers/about.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .content-page { max-width: 760px; margin: 60px auto; padding: 0 24px 80px; }
+  .content-page h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 16px; }
+  .content-page h2 { font-size: 1.3rem; font-weight: 700; margin: 36px 0 12px; color: var(--accent); }
+  .content-page p  { color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; margin: 24px 0; }
+  .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .feature-card .icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .feature-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+  .feature-card p  { font-size: 0.82rem; color: var(--muted); margin: 0; }
+  .credit-box {
+    background: var(--card); border: 1px solid var(--accent);
+    border-radius: var(--radius); padding: 24px; margin-top: 40px;
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  }
+  .credit-box .credit-icon { font-size: 2rem; }
+  .credit-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .credit-box p { font-size: 0.85rem; color: var(--muted); margin: 0; }
+  .credit-box a { color: var(--accent); font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><div class="logo-icon">🌐</div><span>Geo Centers</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Countries</a></li>
+      <li><a href="world-map.html">World Map</a></li>
+      <li><a href="methodology.html">Methodology</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+    <div class="header-controls">
+      <select id="lang-select" class="lang-select">
+        <option value="en">English</option><option value="tr">Türkçe</option>
+        <option value="de">Deutsch</option><option value="es">Español</option>
+        <option value="pt">Português</option>
+      </select>
+      <button id="theme-btn" class="theme-btn">☀️</button>
+    </div>
+    <button class="nav-toggle" id="nav-toggle">☰</button>
+  </div>
+</header>
+
+<div class="content-page">
+  <h1>About This Project</h1>
+  <p>Countries Geographic Centers is an open geographic reference — a clean, fast, multilingual atlas of the exact mathematical center of every sovereign country on Earth.</p>
+
+  <h2>What We Built</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="icon">🌍</div>
+      <h3>196 Countries</h3>
+      <p>Every UN-recognized sovereign state plus key territories, each with a precisely calculated center point.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📐</div>
+      <h3>WGS84 Precision</h3>
+      <p>Area-weighted centroid calculated on the WGS84 ellipsoid — the same standard used by GPS systems worldwide.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🗺️</div>
+      <h3>Interactive Map</h3>
+      <p>All 196 centers plotted on a live Leaflet map. Click any pin to open that country's detail page.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🌐</div>
+      <h3>5 Languages</h3>
+      <p>English, Turkish, German, Spanish and Portuguese — switch instantly with no page reload.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⚡</div>
+      <h3>Fast &amp; Lightweight</h3>
+      <p>No heavy frameworks. Pure HTML, CSS and vanilla JavaScript. Loads in under a second.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🌙</div>
+      <h3>Dark / Light Mode</h3>
+      <p>Comfortable to use at any time of day. Your preference is saved locally.</p>
+    </div>
+  </div>
+
+  <h2>Data &amp; Accuracy</h2>
+  <p>All coordinate data is sourced from high-resolution GeoJSON boundaries and calculated using the area-weighted centroid method. Accuracy is typically <strong>±3–7 meters</strong>. See the <a href="methodology.html">Methodology</a> page for full details.</p>
+
+  <h2>Open &amp; Transparent</h2>
+  <p>This project is built on open data and open-source tools: OpenStreetMap tiles, Leaflet.js, Natural Earth boundaries, and Inter typeface by Rasmus Andersson.</p>
+
+  <!-- Credit box -->
+  <div class="credit-box">
+    <div class="credit-icon">🔗</div>
+    <div>
+      <h3>Based on data from Middle of Countries</h3>
+      <p>
+        Geographic center calculations and boundary data are derived from
+        <a href="https://middleofcountries.github.io" target="_blank" rel="noopener">middleofcountries.github.io</a>.
+        We are grateful for their meticulous work in computing these coordinates.
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-bottom">
+      <span>© 2025 Countries Geographic Centers</span>
+      <div class="footer-credit">
+        Data sourced from
+        <a href="https://middleofcountries.github.io" target="_blank" rel="noopener">middleofcountries.github.io</a> 🔗
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){const t=localStorage.getItem('cgc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);const b=document.getElementById('theme-btn');if(b)b.textContent=t==='dark'?'☀️':'🌙';})();
+document.getElementById('theme-btn').addEventListener('click',function(){const c=document.documentElement.getAttribute('data-theme');const n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cgc_theme',n);this.textContent=n==='dark'?'☀️':'🌙';});
+document.getElementById('nav-toggle').addEventListener('click',function(){document.getElementById('nav-links').classList.toggle('open');});
+</script>
+</body>
+</html>

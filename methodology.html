@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methodology — How We Calculate Geographic Centers | Geo Centers</title>
+<meta name="description" content="How we calculate the exact geographic center of every country using area-weighted centroid on the WGS84 ellipsoid. Full methodology, data sources, and accuracy details.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://geo-gis-maps.github.io/countries-geographic-centers/methodology.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  .content-page { max-width: 760px; margin: 60px auto; padding: 0 24px 80px; }
+  .content-page h1 { font-size: 2.2rem; font-weight: 900; margin-bottom: 16px; }
+  .content-page h2 { font-size: 1.3rem; font-weight: 700; margin: 36px 0 12px; color: var(--accent); }
+  .content-page p  { color: var(--muted); line-height: 1.8; margin-bottom: 16px; }
+  .content-page ul { color: var(--muted); line-height: 1.9; padding-left: 20px; margin-bottom: 16px; }
+  .method-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin-bottom: 16px;
+  }
+  .method-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .method-card p  { font-size: 0.88rem; color: var(--muted); margin: 0; }
+  .formula {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px 20px;
+    font-family: 'JetBrains Mono','Courier New',monospace;
+    font-size: 0.85rem; color: var(--accent); margin: 16px 0;
+    overflow-x: auto;
+  }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="logo"><div class="logo-icon">🌐</div><span>Geo Centers</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">Countries</a></li>
+      <li><a href="world-map.html">World Map</a></li>
+      <li><a href="methodology.html" class="active">Methodology</a></li>
+      <li><a href="about.html">About</a></li>
+    </ul>
+    <div class="header-controls">
+      <select id="lang-select" class="lang-select"><option value="en">English</option><option value="tr">Türkçe</option><option value="de">Deutsch</option><option value="es">Español</option><option value="pt">Português</option></select>
+      <button id="theme-btn" class="theme-btn">☀️</button>
+    </div>
+    <button class="nav-toggle" id="nav-toggle">☰</button>
+  </div>
+</header>
+
+<div class="content-page">
+  <h1>Methodology</h1>
+  <p>Every geographic center on this site is calculated using the <strong>Area-Weighted Centroid</strong> method applied directly to the WGS84 ellipsoid — the same coordinate system used by GPS.</p>
+
+  <h2>What is a Geographic Center?</h2>
+  <p>The geographic center of a country is the point that minimizes the average distance to all points on its territory. It is not simply the average of the bounding box, nor the visual "middle" — it is a mathematically precise centroid weighted by area.</p>
+
+  <h2>Calculation Steps</h2>
+  <div class="method-card">
+    <h3>1. Boundary Extraction</h3>
+    <p>High-resolution GeoJSON boundaries are sourced from Natural Earth Data and cross-referenced with OpenStreetMap. Each country's polygon is decomposed into individual coordinate pairs.</p>
+  </div>
+  <div class="method-card">
+    <h3>2. Triangle Decomposition</h3>
+    <p>The polygon is triangulated from a reference point. Each triangle's centroid and area are computed on the WGS84 ellipsoid using the Haversine formula for spherical distance.</p>
+  </div>
+  <div class="method-card">
+    <h3>3. Area-Weighted Average</h3>
+    <p>The final centroid is the area-weighted average of all triangle centroids. Islands and exclaves are included with their appropriate area weights.</p>
+  </div>
+
+  <div class="formula">
+    C = Σ(Aᵢ × cᵢ) / Σ(Aᵢ)
+    <br>where Aᵢ = area of triangle i, cᵢ = centroid of triangle i
+  </div>
+
+  <h2>Accuracy</h2>
+  <p>Results are accurate to <strong>±3–7 meters</strong> depending on the resolution of the source boundary data. Countries with complex coastlines (Norway, Indonesia) may have slightly higher variance.</p>
+
+  <h2>Data Sources</h2>
+  <ul>
+    <li>Natural Earth Data (1:10m cultural vectors)</li>
+    <li>OpenStreetMap boundary relations</li>
+    <li>UN GADM administrative boundaries</li>
+    <li>WGS84 ellipsoid parameters (a = 6378137m, f = 1/298.257)</li>
+  </ul>
+
+  <p style="margin-top:32px;font-size:0.82rem;">
+    Original calculations and data provided by
+    <a href="https://middleofcountries.github.io" target="_blank" rel="noopener">middleofcountries.github.io</a>.
+  </p>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-bottom">
+      <span>© 2025 Countries Geographic Centers</span>
+      <div class="footer-credit">
+        Data sourced from <a href="https://middleofcountries.github.io" target="_blank" rel="noopener">middleofcountries.github.io</a> 🔗
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){const t=localStorage.getItem('cgc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);const b=document.getElementById('theme-btn');if(b)b.textContent=t==='dark'?'☀️':'🌙';})();
+document.getElementById('theme-btn').addEventListener('click',function(){const c=document.documentElement.getAttribute('data-theme');const n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cgc_theme',n);this.textContent=n==='dark'?'☀️':'🌙';});
+document.getElementById('nav-toggle').addEventListener('click',function(){document.getElementById('nav-links').classList.toggle('open');});
+</script>
+</body>
+</html>

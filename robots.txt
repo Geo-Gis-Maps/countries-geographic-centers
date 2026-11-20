@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://geo-gis-maps.github.io/countries-geographic-centers/sitemap.xml

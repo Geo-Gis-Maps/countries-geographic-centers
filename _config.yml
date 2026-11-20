@@ -1,0 +1,5 @@
+# GitHub Pages configuration
+title: "Countries Geographic Centers"
+description: "Exact geographic centers of 196 countries — WGS84 precision"
+url: "https://geo-gis-maps.github.io"
+baseurl: "/countries-geographic-centers"
