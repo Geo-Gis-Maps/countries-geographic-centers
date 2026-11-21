@@ -3,20 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Geographic Centers of Every Country — Exact Coordinates | Geo Centers</title>
+
+<!-- ═══ PRIMARY SEO ═══ -->
+<title>Geographic Centers of Every Country — Exact WGS84 Coordinates | Geo Centers</title>
 <meta name="description" content="Explore the exact geographic center of every country in the world. 196 countries mapped with WGS84 precision using Area-Weighted Centroid method. Available in English, Turkish, German, Spanish and Portuguese.">
-<meta name="keywords" content="geographic center of every country, country geographic center, centroid of countries, exact center of country, WGS84 coordinates, world map centers, geographic midpoint, country center coordinates, middle of country">
+<meta name="keywords" content="geographic center of every country, country geographic center, centroid of countries, exact center of country, WGS84 coordinates, world map centers, geographic midpoint, country center coordinates, middle of country, geographic centre, land centroid, area weighted centroid, country middle point">
 <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
 <meta name="author" content="Geo Centers">
+<meta name="google-site-verification" content="eeSIq76qZIBF-33qIntnavcIawlOUO1OtK0ufDUkWhQ">
+<meta name="theme-color" content="#0a0e1a">
+
+<!-- ═══ OPEN GRAPH ═══ -->
 <meta property="og:title" content="Geographic Centers of Every Country — Exact WGS84 Coordinates">
-<meta property="og:description" content="196 countries. Each one mapped to its exact geographic center calculated with Area-Weighted Centroid method on WGS84 ellipsoid.">
+<meta property="og:description" content="196 countries. Each one mapped to its exact geographic center calculated with Area-Weighted Centroid method on WGS84 ellipsoid. Interactive map, 5 languages.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://geo-gis-maps.github.io/countries-geographic-centers/">
 <meta property="og:site_name" content="Countries Geographic Centers">
+<meta property="og:image" content="https://geo-gis-maps.github.io/countries-geographic-centers/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="World map showing geographic centers of 196 countries">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="tr_TR">
+<meta property="og:locale:alternate" content="de_DE">
+<meta property="og:locale:alternate" content="es_ES">
+<meta property="og:locale:alternate" content="pt_PT">
+
+<!-- ═══ TWITTER CARD ═══ -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Geographic Centers of Every Country">
-<meta name="twitter:description" content="196 countries mapped to their exact geographic center. WGS84 precision, 5 languages.">
+<meta name="twitter:title" content="Geographic Centers of Every Country — 196 Countries Mapped">
+<meta name="twitter:description" content="Exact geographic center coordinates of every country. WGS84 precision, interactive map, 5 languages.">
+<meta name="twitter:image" content="https://geo-gis-maps.github.io/countries-geographic-centers/assets/og-image.png">
+<meta name="twitter:image:alt" content="World map showing geographic centers of 196 countries">
+
+<!-- ═══ CANONICAL + HREFLANG ═══ -->
 <link rel="canonical" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="en" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="tr" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="de" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="es" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="pt" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
+<link rel="alternate" hreflang="x-default" href="https://geo-gis-maps.github.io/countries-geographic-centers/">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -30,22 +57,90 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-<!-- JSON-LD -->
+<!-- ═══ STRUCTURED DATA ═══ -->
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Countries Geographic Centers",
-  "alternateName": "Geo Centers",
-  "description": "Exact geographic centers of 196 countries calculated with Area-Weighted Centroid method on WGS84 ellipsoid",
-  "url": "https://geo-gis-maps.github.io/countries-geographic-centers/",
-  "inLanguage": ["en","tr","de","es","pt"],
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://geo-gis-maps.github.io/countries-geographic-centers/?q={search_term_string}",
-    "query-input": "required name=search_term_string"
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Countries Geographic Centers",
+    "alternateName": ["Geo Centers", "Geographic Centers of Countries"],
+    "description": "Exact geographic centers of 196 countries calculated with Area-Weighted Centroid method on WGS84 ellipsoid",
+    "url": "https://geo-gis-maps.github.io/countries-geographic-centers/",
+    "inLanguage": ["en","tr","de","es","pt"],
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://geo-gis-maps.github.io/countries-geographic-centers/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "name": "Geographic Centers of 196 Countries",
+    "description": "WGS84 coordinates of the exact geographic center of every sovereign country, calculated using Area-Weighted Centroid method",
+    "url": "https://geo-gis-maps.github.io/countries-geographic-centers/assets/js/countries_coordinates.json",
+    "keywords": ["geographic center","centroid","WGS84","coordinates","countries","geography"],
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "creator": {
+      "@type": "Organization",
+      "name": "Geo Centers",
+      "url": "https://geo-gis-maps.github.io/countries-geographic-centers/"
+    },
+    "distribution": {
+      "@type": "DataDownload",
+      "encodingFormat": "application/json",
+      "contentUrl": "https://geo-gis-maps.github.io/countries-geographic-centers/assets/js/countries_coordinates.json"
+    },
+    "temporalCoverage": "2025",
+    "spatialCoverage": {
+      "@type": "Place",
+      "name": "World"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://geo-gis-maps.github.io/countries-geographic-centers/"},
+      {"@type":"ListItem","position":2,"name":"World Map","item":"https://geo-gis-maps.github.io/countries-geographic-centers/world-map.html"},
+      {"@type":"ListItem","position":3,"name":"Countries","item":"https://geo-gis-maps.github.io/countries-geographic-centers/countries/"}
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is a geographic center of a country?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The geographic center of a country is the point that minimizes the average distance to all points on its territory. It is calculated using the Area-Weighted Centroid method on the WGS84 ellipsoid, the same coordinate system used by GPS."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How accurate are the geographic center coordinates?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "All coordinates are accurate to within 3-7 metres, depending on the resolution of the source boundary data. Calculations use high-resolution GeoJSON boundaries from Natural Earth Data and OpenStreetMap."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many countries are covered?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "196 sovereign countries and territories are covered, each with its exact geographic center coordinates calculated on the WGS84 ellipsoid."
+        }
+      }
+    ]
   }
-}
+]
 </script>
 </head>
 <body>
